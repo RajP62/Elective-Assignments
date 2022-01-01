@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>This is the client</h1>
+    <div id="messages"></div>
+
+    <div>
+        <input type="text" placeholder="username" id="username" name="username">
+        <input type="text" placeholder="message" id="message" name="message">
+        <button id="submit" onclick="sendMessage()" name="submit">Submit</button>
+    </div>
+
+    <script type="text/javascript">
+        var socket = new WebSocket("ws://localhost:2000");
+        socket.onopen = (event)=>{
+            console.log('connected', event)
+        }
+
+        socket.onmessage = (ws)=>{
+            console.log(ws.data);
+            let parsedWs = JSON.parse(ws.data)
+            const message = document.createElement("p");
+            message.innerHTML = `Recieved from ${parsedWs.username} message ${parsedWs.message} `
+            document.getElementById("messages").appendChild(message)
+        }
+
+        function sendMessage(){
+            const username = document.getElementById("username").value;
+            const message = document.getElementById("message").value;
+            const payload = JSON.stringify({username, message});
+            if(socket.OPEN){
+                socket.send(payload);
+            }
+        }
+    </script>
+</body>
+</html>
